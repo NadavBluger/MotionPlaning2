@@ -1,3 +1,4 @@
+import random
 import time
 
 import numpy as np
@@ -37,9 +38,13 @@ class PRMController:
         Generate 'n' random collision-free samples called milestones.
         n: number of collision-free configurations to generate
         """
-        # TODO: HW2 4.3.1
-        raise NotImplementedError()
-
+        coord = []
+        while len(coord) < n:
+            x=random.uniform(0, self.bb.env.xlimit)
+            y=random.uniform(0, self.bb.env.ylimit)
+            if self.bb.config_validity_checker((x,y)):
+                coord.append((x,y))
+        return coord
 
     def add_to_graph(self, configs, k):
         """
