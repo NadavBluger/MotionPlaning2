@@ -1,5 +1,8 @@
 import itertools
 import numpy as np
+import math
+
+import shapely
 from shapely.geometry import Point, LineString
 
 class BuildingBlocks2D(object):
@@ -22,8 +25,9 @@ class BuildingBlocks2D(object):
         @param prev_config Previous configuration.
         @param next_config Next configuration.
         '''
-        # TODO: HW2 4.2.1
-        raise NotImplementedError()
+        prev_end_affector = self.compute_forward_kinematics(prev_config)[-1]
+        next_end_affector = self.compute_forward_kinematics(next_config)[-1]
+        return math.sqrt((prev_end_affector[1]-next_end_affector[1])**2 +(prev_end_affector[0]-next_end_affector[0])**2)
 
     def compute_path_cost(self, path):
         totat_cost = 0
@@ -36,8 +40,16 @@ class BuildingBlocks2D(object):
         Compute the 2D position (x,y) of each one of the links (including end-effector) and return.
         @param given_config Given configuration.
         '''
-        # TODO: HW2 4.2.2
-        raise NotImplementedError()
+        positions = []
+        last_position = given_config = [0,0]
+        for i in range(4):
+            current_link = self.links[i]
+            x_advance = math.cos(given_config[i])* current_link
+            y_advance = math.sin(given_config[i])* current_link
+            current_position = [last_position[0] + x_advance, last_position[1]+y_advance]
+            positions.append(current_position)
+            last_position=current_position
+        return positions
 
     def compute_ee_angle(self, given_config):
         '''
@@ -68,8 +80,14 @@ class BuildingBlocks2D(object):
         Verify that the given set of links positions does not contain self collisions.
         @param robot_positions Given links positions.
         '''
-        # TODO: HW2 4.2.3
-        raise NotImplementedError()
+        edges = [(robot_positions[i], robot_positions[i+1]) for i in range(len(robot_positions)-1)]
+        for edge in edges:
+            for other_edge in edges:
+                if edge == other_edge:
+                    continue
+                if shapely.LineString(edge).intersects(shapely.LineString(edge)):
+                    return False
+        return True
 
     def config_validity_checker(self, config):
         '''
