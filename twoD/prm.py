@@ -50,8 +50,14 @@ class PRMController:
         """
             add new configs to the graph.
         """
-        # TODO: HW2 4.3.2
-        raise NotImplementedError()
+        while configs:
+            config = configs.pop()
+            nns = self.find_nearest_neighbour(config, k)
+            for nn in nns:
+                if self.bb.edge_validity_checker(nn, config):
+                    self.graph.add_edge(nn,config)
+                    break
+
 
     def find_nearest_neighbour(self, config, k=5):
         """
