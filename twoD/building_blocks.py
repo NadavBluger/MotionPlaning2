@@ -42,10 +42,11 @@ class BuildingBlocks2D(object):
         '''
         positions = []
         last_position = given_config = [0,0]
+
         for i in range(4):
             current_link = self.links[i]
-            x_advance = math.cos(given_config[i])* current_link
-            y_advance = math.sin(given_config[i])* current_link
+            x_advance = math.cos(given_config[0])* current_link
+            y_advance = math.sin(given_config[1])* current_link
             current_position = [last_position[0] + x_advance, last_position[1]+y_advance]
             positions.append(current_position)
             last_position=current_position
@@ -80,12 +81,12 @@ class BuildingBlocks2D(object):
         Verify that the given set of links positions does not contain self collisions.
         @param robot_positions Given links positions.
         '''
-        edges = [(robot_positions[i], robot_positions[i+1]) for i in range(len(robot_positions)-1)]
+        edges = [shapely.LineString([robot_positions[i], robot_positions[i+1]]) for i in range(len(robot_positions)-1)]
         for edge in edges:
             for other_edge in edges:
                 if edge == other_edge:
                     continue
-                if shapely.LineString(edge).intersects(shapely.LineString(edge)):
+                if edge.crosses(other_edge):
                     return False
         return True
 
@@ -97,6 +98,7 @@ class BuildingBlocks2D(object):
         '''
         # compute robot links positions
         robot_positions = self.compute_forward_kinematics(given_config=config)
+
 
         # add position of robot placement ([0,0] - position of the first joint)
         robot_positions = np.concatenate([np.zeros((1,2)), robot_positions])

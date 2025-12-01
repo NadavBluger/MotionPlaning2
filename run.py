@@ -35,7 +35,7 @@ def run_prm():
     visualizer = Visualizer(bb)
     prm = PRMController(conf1, conf2, bb)
 
-    plan = [] # TODO: HW2 4.3.5
+    plan = prm.run_PRM()
     print(bb.compute_path_cost(plan))
     visualizer.visualize_plan_as_gif(plan)
 
