@@ -41,8 +41,7 @@ class BuildingBlocks2D(object):
         @param given_config Given configuration.
         '''
         positions = []
-        last_position = given_config = [0,0]
-
+        last_position = [0,0]
         for i in range(4):
             current_link = self.links[i]
             x_advance = math.cos(given_config[0])* current_link
@@ -160,6 +159,7 @@ class BuildingBlocks2D(object):
             # verify that the robot do not collide with itself during motion
             for config_positions in configs_positions:
                 if not self.validate_robot(config_positions):
+                    print("f")
                     return False
 
             # verify that all robot joints (and links) are between world boundaries

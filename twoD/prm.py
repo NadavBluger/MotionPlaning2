@@ -30,7 +30,8 @@ class PRMController:
         coords = self.gen_coords(num_coords)
         self.add_to_graph(coords, k)
         # Planning part
-        return self.shortest_path()
+        path = self.shortest_path()
+        return path
 
     
     def create_graph(self, base_number, how_many_to_add, num_searches):
@@ -60,7 +61,7 @@ class PRMController:
             nns = self.find_nearest_neighbour(config, k)
             for nn in nns:
                 neighbor = list(self.graph.nodes())[nn-1]
-                if self.bb.edge_validity_checker(neighbor, config):
+                if self.bb.edge_validity_checker(config, neighbor):
                     self.graph.add_edge(tuple(neighbor),tuple(config))
                     break
 
@@ -81,14 +82,15 @@ class PRMController:
 
         source = tuple(self.start)
         dest = tuple(self.goal)
-        lines = self.graph.edges
+        lines = self.graph.edges()
         graph = defaultdict(list)
         # build graph
+        print(lines)
         for line in lines:
             length = self.bb.compute_distance(line[0], line[1])
             graph[tuple(line[0])].append((tuple(line[1]), length))
             graph[tuple(line[1])].append((tuple(line[0]), length))
-
+        print(graph.items())
         # run dijkstra
         heap = [(0, source)]
         distances = {point: float('inf') for point in graph.keys()}
