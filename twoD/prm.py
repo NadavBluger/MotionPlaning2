@@ -28,10 +28,15 @@ class PRMController:
         # TODO: HW2 4.3.4
         # Preprocessing
         coords = self.gen_coords(num_coords)
+        for i, c in enumerate(coords[:5]):
+            print(f"[run_PRM] coords[{i}] =", c, " type:", type(c))
+
         self.add_to_graph(coords, k)
         # Planning part
-        path = self.shortest_path()
-        return path
+        path , cost = self.shortest_path()
+
+        plan = [np.array(cfg) for cfg in path]
+        return plan
 
     
     def create_graph(self, base_number, how_many_to_add, num_searches):
@@ -54,25 +59,45 @@ class PRMController:
         """
             add new configs to the graph.
         """
+        print("[add_to_graph] received", len(configs), "configs")
 
         self.graph.add_node(tuple(self.start))
+#        self.graph.add_node(tuple(self.goal))
+        configs.append(self.start)
         configs.append(self.goal)
         for config in configs:
+            self.graph.add_node(tuple(config))
             nns = self.find_nearest_neighbour(config, k)
             for nn in nns:
-                neighbor = list(self.graph.nodes())[nn-1]
-                if self.bb.edge_validity_checker(config, neighbor):
-                    self.graph.add_edge(tuple(neighbor),tuple(config))
-                    break
+                if self.bb.edge_validity_checker(config, nn):
+                    self.graph.add_edge(tuple(nn),tuple(config))
+
 
 
     def find_nearest_neighbour(self, config, k=5):
         """
             Find the k nearest neighbours to config
         """
-        tree = KDTree(self.graph.nodes())
-        distances, indices = tree.query((config), k)
-        neighbours = indices[1:]
+        nodes = list(self.graph.nodes())
+        if not nodes:
+            return []
+
+        pts = np.array(nodes)  # shape (N, d)
+        m = min(k, len(pts))
+        tree = KDTree(pts)
+
+        # query with 2D input, then flatten indices
+        dists, idx = tree.query([config], k=m)
+        idx = np.asarray(idx).ravel()
+
+        cfg_t = tuple(config)
+        neighbours = []
+        for i in idx:
+            neighbour = tuple(pts[i])
+            if neighbour == cfg_t:  # skip self if present
+                continue
+            neighbours.append(neighbour)
+
         return neighbours
 
     def shortest_path(self):

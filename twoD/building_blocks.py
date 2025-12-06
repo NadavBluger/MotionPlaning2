@@ -25,9 +25,12 @@ class BuildingBlocks2D(object):
         @param prev_config Previous configuration.
         @param next_config Next configuration.
         '''
-        prev_end_affector = self.compute_forward_kinematics(prev_config)[-1]
-        next_end_affector = self.compute_forward_kinematics(next_config)[-1]
-        return math.sqrt((prev_end_affector[1]-next_end_affector[1])**2 +(prev_end_affector[0]-next_end_affector[0])**2)
+        sq_sum = 0.0
+        for a, b in zip(prev_config, next_config):
+            diff = a - b
+            sq_sum += diff * diff
+        return math.sqrt(sq_sum)
+
 
     def compute_path_cost(self, path):
         totat_cost = 0
@@ -41,14 +44,13 @@ class BuildingBlocks2D(object):
         @param given_config Given configuration.
         '''
         positions = []
-        last_position = [0,0]
-        for i in range(4):
-            current_link = self.links[i]
-            x_advance = math.cos(given_config[0])* current_link
-            y_advance = math.sin(given_config[1])* current_link
-            current_position = [last_position[0] + x_advance, last_position[1]+y_advance]
-            positions.append(current_position)
-            last_position=current_position
+        x, y = 0.0, 0.0
+        theta = 0.0
+        for i, link_len in enumerate(self.links):
+            theta += given_config[i]  # accumulate joint angles
+            x += link_len * math.cos(theta)
+            y += link_len * math.sin(theta)
+            positions.append([x, y])
         return positions
 
     def compute_ee_angle(self, given_config):
