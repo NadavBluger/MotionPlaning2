@@ -15,7 +15,8 @@ class PRMController:
         self.bb = bb
         self.start = start
         self.goal = goal
-
+        self.tree = None
+        self.tree_pts = None
         self.coordinates_history = []
         # Feel free to add class variables as you wish
 
@@ -67,6 +68,9 @@ class PRMController:
         configs.append(self.goal)
         for config in configs:
             self.graph.add_node(tuple(config))
+        self.tree_pts = np.array(list(self.graph.nodes()))
+        self.tree = KDTree(self.tree_pts)
+        for config in configs:
             nns = self.find_nearest_neighbour(config, k)
             for nn in nns:
                 if self.bb.edge_validity_checker(config, nn):
@@ -78,22 +82,17 @@ class PRMController:
         """
             Find the k nearest neighbours to config
         """
-        nodes = list(self.graph.nodes())
-        if not nodes:
-            return []
 
-        pts = np.array(nodes)  # shape (N, d)
-        m = min(k, len(pts))
-        tree = KDTree(pts)
+        m = min(k, len(self.tree_pts))
 
         # query with 2D input, then flatten indices
-        dists, idx = tree.query([config], k=m)
+        dists, idx = self.tree.query([config], k=m)
         idx = np.asarray(idx).ravel()
 
         cfg_t = tuple(config)
         neighbours = []
         for i in idx:
-            neighbour = tuple(pts[i])
+            neighbour = tuple(self.tree_pts[i])
             if neighbour == cfg_t:  # skip self if present
                 continue
             neighbours.append(neighbour)
