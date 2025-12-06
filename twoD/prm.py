@@ -33,7 +33,8 @@ class PRMController:
         self.add_to_graph(coords, k)
         # Planning part
         path , cost = self.shortest_path()
-
+        if path is None:
+            return None
         plan = [np.array(cfg) for cfg in path]
         return plan
 
