@@ -29,8 +29,6 @@ class PRMController:
         # TODO: HW2 4.3.4
         # Preprocessing
         coords = self.gen_coords(num_coords)
-        for i, c in enumerate(coords[:5]):
-            print(f"[run_PRM] coords[{i}] =", c, " type:", type(c))
 
         self.add_to_graph(coords, k)
         # Planning part
@@ -60,10 +58,9 @@ class PRMController:
         """
             add new configs to the graph.
         """
-        print("[add_to_graph] received", len(configs), "configs")
 
         self.graph.add_node(tuple(self.start))
-#        self.graph.add_node(tuple(self.goal))
+        self.graph.add_node(tuple(self.goal))
         configs.append(self.start)
         configs.append(self.goal)
         for config in configs:
@@ -109,12 +106,12 @@ class PRMController:
         lines = self.graph.edges()
         graph = defaultdict(list)
         # build graph
-        print(lines)
+      #  print(lines)
         for line in lines:
             length = self.bb.compute_distance(line[0], line[1])
             graph[tuple(line[0])].append((tuple(line[1]), length))
             graph[tuple(line[1])].append((tuple(line[0]), length))
-        print(graph.items())
+       # print(graph.items())
         # run dijkstra
         heap = [(0, source)]
         distances = {point: float('inf') for point in graph.keys()}
@@ -123,7 +120,7 @@ class PRMController:
         while heap:
             current_distance, current_point = heapq.heappop(heap)
             if current_point == dest:
-                print("f")
+               # print("f")
                 break
             if current_distance > distances[current_point]:
                 continue
