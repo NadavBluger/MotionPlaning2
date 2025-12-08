@@ -38,6 +38,7 @@ def run_prm():
   #  plan = prm.run_PRM(700,70)
    # print(bb.compute_path_cost(plan))
     for num_coords in range(100, 701, 100):
+        prm = PRMController(conf1, conf2, bb)
         print(num_coords)
         plan = prm.run_PRM(num_coords, 5)
         print("5 :")
