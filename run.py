@@ -35,9 +35,28 @@ def run_prm():
     visualizer = Visualizer(bb)
     prm = PRMController(conf1, conf2, bb)
 
-    plan = prm.run_PRM()
-    print(bb.compute_path_cost(plan))
-    visualizer.visualize_plan_as_gif(plan)
+  #  plan = prm.run_PRM(700,70)
+   # print(bb.compute_path_cost(plan))
+    for num_coords in range(100, 701, 100):
+        print(num_coords)
+        plan = prm.run_PRM(num_coords, 5)
+        print("5 :")
+        print(bb.compute_path_cost(plan))
+        plan = prm.run_PRM(num_coords, 10)
+        print("10 :")
+        print(bb.compute_path_cost(plan))
+        plan = prm.run_PRM(num_coords, math.floor(math.log(num_coords, 2)))
+        print("logn :")
+        print(bb.compute_path_cost(plan))
+        plan = prm.run_PRM(num_coords, 10 * math.floor(math.log(num_coords, 2)))
+        print("10logn :")
+        print(bb.compute_path_cost(plan))
+        plan = prm.run_PRM(num_coords, 10 * math.floor(math.log(num_coords, num_coords/2)))
+        print("n/2:")
+        print(bb.compute_path_cost(plan))
+
+
+#  visualizer.visualize_plan_as_gif(plan)
 
 
 def generate_graph():
@@ -79,7 +98,7 @@ def run_3d():
     visualizer.show_conf(conf1)
 
 if __name__ == "__main__":
-    # run_2d()
+    run_2d()
     run_prm()
     # run_3d()
     # generate_graph()
