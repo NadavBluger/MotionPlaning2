@@ -1,4 +1,3 @@
-
 import numpy as np
 from environment import Environment
 from kinematics import UR5e_PARAMS, Transform
@@ -14,22 +13,13 @@ def main():
         ur_params = UR5e_PARAMS(inflation_factor=inflation_factor)
         env = Environment(env_idx=0)
         transform = Transform(ur_params)
-        bb = BuildingBlocks3D(transform=transform, ur_params=ur_params, env=env, resolution=0.1, p_bias=0.03)
+        bb = BuildingBlocks3D(transform=transform, ur_params=ur_params, env=env, resolution=0.1)
         # change the path
         random_samples = np.load('./random_samples/random_samples_100k.npy')
 
-        # check collisions for all 100K examples
-        is_collision_counter = 0
-        time_start = time.time()
-        for random_conf in random_samples:
-            if bb.is_in_collision(conf=np.rad2deg(random_conf)):
-                is_collision_counter += 1
-            # visualizer = Visualize_UR(ur_params, env=env, transform=transform, bb=bb)
-            # visualizer.show_conf(random_conf)
-            # pass
+         # TODO: HW2 5.2.5
 
-        times.append(time.time() - time_start)
-        is_collision_instances.append(is_collision_counter)
+    pass
 
 
 
@@ -51,6 +41,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
