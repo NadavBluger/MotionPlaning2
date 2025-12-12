@@ -1,3 +1,6 @@
+import math
+import random
+
 import numpy as np
 
 
@@ -34,16 +37,42 @@ class BuildingBlocks3D(object):
         @param goal_conf - the goal configuration
         :param goal_prob - the probability that goal should be sampled
         """
-        # TODO: HW2 5.2.1
-        raise NotImplementedError()
+        if random.random() < goal_prob:
+            return goal_conf
+        return [random.uniform(limit[0], limit[1]) for limit in self.ur_params.mechamical_limits.values()]
 
     def config_validity_checker(self, conf) -> bool:
         """check for collision in given configuration, arm-arm and arm-obstacle
         return False if in collision
         @param conf - some configuration
         """
-        # TODO: HW2 5.2.2
-        raise NotImplementedError()
+        spheres = self.transform.conf2sphere_coords(conf)
+        # link link collision
+        for plc in self.possible_link_collisions:
+            obj_0_spheres = spheres[plc[0]]
+            obj_1_spheres = spheres[plc[1]]
+            for obj_1_sphere in obj_1_spheres:
+                for obj_0_sphere in obj_0_spheres:
+                    if math.dist(obj_0_sphere, obj_1_sphere) < 2*self.env.radius:
+                        print("link link collision")
+                        return False
+        robot_spheres = []
+        [robot_spheres.extend(spheres) for spheres in self.transform.conf2sphere_coords(conf).values()]
+        #link obstacle collision
+        for sphere in robot_spheres:
+            for obstacle in self.env.obstacles:
+                if math.dist(sphere,obstacle) < 2*self.env.radius:
+                    print("link obstacle collision")
+                    return False
+        #link floor collision
+        for sphere in robot_spheres:
+            if np.array_equal(sphere,np.zeros(3)):
+                continue
+            if sphere[-1] - self.env.radius <0:
+                print("link floor collision")
+                return False
+
+        return True
 
     def edge_validity_checker(self, prev_conf, current_conf) -> bool:
         '''check for collisions between two configurations - return True if trasition is valid
@@ -51,7 +80,18 @@ class BuildingBlocks3D(object):
         @param current_conf - current configuration
         '''
         # TODO: HW2 5.2.4
-        raise NotImplementedError()
+        print(prev_conf, current_conf)
+        length = self.compute_distance(current_conf, prev_conf)
+        amount = int(max(length/self.resolution, 2))
+        current = prev_conf
+        increment = current_conf-prev_conf/amount
+        for i in range(amount):
+            print(current)
+            if self.config_validity_checker(current):
+                current += increment
+            else:
+                return False
+        return True
 
     def compute_distance(self, conf1, conf2):
         '''
