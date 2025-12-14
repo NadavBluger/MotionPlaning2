@@ -169,25 +169,28 @@ def run_3d():
 
     
 
-    visualizer = Visualize_UR(ur_params, env=env, transform=transform, bb=bb)
+    #visualizer = Visualize_UR(ur_params, env=env, transform=transform, bb=bb)
 
     # --------- configurations-------------
     conf1 = np.deg2rad([0, -90, 0, -90, 0, 0])
-
+    no_col = np.deg2rad([0, -90, 90, -90, 0, 0])
+    obs_col = np.deg2rad([0, 0, 0, 0, 0, 0])
+    self_col = np.deg2rad([0, -90, 180, 0, 0, 0])
+    conf_start = np.deg2rad( [80, -72, 101, -120, -90, -10])
+    conf_goal = np.deg2rad([20, -90, 90, -90, -90, -10])
     conf2 = np.array([-0.694, -1.376, -2.212, -1.122, 1.570, -2.26])
 
     # ---------------------------------------
 
     # collision checking examples
-    res = bb.config_validity_checker(conf=conf1)
-    print("Configuration 1 is free collision:", res)
-    res = bb.edge_validity_checker(prev_conf=conf1 ,current_conf=conf2)
-    print("Edge between conf 1 and conf 2 is free collision:", res)
+    print(bb.config_validity_checker(conf_goal))
+    #res = bb.edge_validity_checker(prev_conf=conf_start ,current_conf=conf_goal)
+    #print("Edge between conf 1 and conf 2 is free collision:", res)
 
-    visualizer.show_conf(conf1)
+
 
 if __name__ == "__main__":
-    run_2d()
-    run_prm()
-    # run_3d()
+    #run_2d()
+    #run_prm()
+    run_3d()
     # generate_graph()

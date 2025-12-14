@@ -50,27 +50,27 @@ class BuildingBlocks3D(object):
         # link link collision
         for plc in self.possible_link_collisions:
             obj_0_spheres = spheres[plc[0]]
+            obj_0_radius = self.ur_params.sphere_radius[plc[0]]
             obj_1_spheres = spheres[plc[1]]
+            obj_1_radius = self.ur_params.sphere_radius[plc[1]]
             for obj_1_sphere in obj_1_spheres:
                 for obj_0_sphere in obj_0_spheres:
-                    if math.dist(obj_0_sphere, obj_1_sphere) < 2*self.env.radius:
-                        print("link link collision")
+                    if math.dist(obj_0_sphere, obj_1_sphere) < obj_0_radius+obj_1_radius:
                         return False
-        robot_spheres = []
-        [robot_spheres.extend(spheres) for spheres in self.transform.conf2sphere_coords(conf).values()]
+        robot = list(self.transform.conf2sphere_coords(conf).items())
         #link obstacle collision
-        for sphere in robot_spheres:
-            for obstacle in self.env.obstacles:
-                if math.dist(sphere,obstacle) < 2*self.env.radius:
-                    print("link obstacle collision")
-                    return False
+        for name, spheres in robot:
+            for sphere in spheres:
+                for obstacle in self.env.obstacles:
+                    if math.dist(sphere,obstacle) < self.env.radius + self.ur_params.sphere_radius[name]:
+                        return False
         #link floor collision
-        for sphere in robot_spheres:
-            if np.array_equal(sphere,np.zeros(3)):
+        for name, spheres in robot:
+            if name == "shoulder_link":
                 continue
-            if sphere[-1] - self.env.radius <0:
-                print("link floor collision")
-                return False
+            for sphere in spheres:
+                if sphere[-1] - self.ur_params.sphere_radius[name] <0:
+                    return False
 
         return True
 
@@ -79,18 +79,18 @@ class BuildingBlocks3D(object):
         @param prev_conf - some configuration
         @param current_conf - current configuration
         '''
-        # TODO: HW2 5.2.4
-        print(prev_conf, current_conf)
         length = self.compute_distance(current_conf, prev_conf)
-        amount = int(max(length/self.resolution, 2))
+        amount = max(int(length/self.resolution), 2)
+        print(amount+1)
         current = prev_conf
-        increment = current_conf-prev_conf/amount
-        for i in range(amount):
-            print(current)
+        increment = (current_conf-prev_conf)/amount
+        for i in range(amount+1):
             if self.config_validity_checker(current):
                 current += increment
             else:
+                print(i+1)
                 return False
+        print(i+1)
         return True
 
     def compute_distance(self, conf1, conf2):

@@ -1,4 +1,6 @@
 import numpy as np
+from PIL.PngImagePlugin import is_cid
+
 from environment import Environment
 from kinematics import UR5e_PARAMS, Transform
 from building_blocks import BuildingBlocks3D
@@ -15,13 +17,17 @@ def main():
         transform = Transform(ur_params)
         bb = BuildingBlocks3D(transform=transform, ur_params=ur_params, env=env, resolution=0.1)
         # change the path
-        random_samples = np.load('./random_samples/random_samples_100k.npy')
-
-         # TODO: HW2 5.2.5
-
-    pass
-
-
+        random_samples = np.load('./random_samples_100k.npy')
+        start = time.time()
+        counter = 0
+        print(f"{inflation_factor=}")
+        for sample in random_samples:
+            if (not bb.config_validity_checker(sample)):
+                counter+=1
+        print(counter)
+        times.append(time.time() - start)
+        is_collision_instances.append(counter)
+    is_collision_instances = [i -is_collision_instances[0] for i in is_collision_instances]
 
     fig = plt.figure()
     ax1 = fig.add_subplot()
