@@ -184,8 +184,8 @@ def run_3d():
 
     # collision checking examples
     print(bb.config_validity_checker(conf_goal))
-    #res = bb.edge_validity_checker(prev_conf=conf_start ,current_conf=conf_goal)
-    #print("Edge between conf 1 and conf 2 is free collision:", res)
+    res = bb.edge_validity_checker(prev_conf=conf_start ,current_conf=conf_goal)
+    print("Edge between conf 1 and conf 2 is free collision:", res)
 
 
 
